@@ -26,8 +26,8 @@ contract Token721 is ERC721URIStorage, ReentrancyGuard, CantBeEvil {
         string memory _name,
         string memory _symbol,
         string memory _metadataURI,
-        License.LicenseVersion license
-    ) ERC721(_name, _symbol) CantBeEvil(license){
+        License.LicenseVersion _license
+    ) ERC721(_name, _symbol) CantBeEvil(_license){
         creatorAddress = tx.origin;
         metadataURI = _metadataURI;
     }
