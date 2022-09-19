@@ -30,5 +30,5 @@ message Collection {
 
 // The response message containing the greetings
 message CreateCollectionReply {
-  string message = 1;
+  bool success = 1;
 }
