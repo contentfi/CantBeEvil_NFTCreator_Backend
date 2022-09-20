@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package errors;
+
+option go_package = "github.com/go-kratos/kratos/v2/errors;errors";
+option java_multiple_files = true;
+option java_package = "com.github.kratos.errors";
+option objc_class_prefix = "KratosErrors";
+
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.EnumOptions {
+  int32 default_code = 1108;
+  Domain domain = 1110;
+}
+
+extend google.protobuf.EnumValueOptions {
+  int32 code = 1109;
+}
+
+enum Domain {
+  DOMAIN_UNKNOWN = 0;
+  DOMAIN_ACCOUNT = 1;
+  DOMAIN_ASSET = 2;
+  DOMAIN_OVERSEA_INTERFACE = 3;
+}

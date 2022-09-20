@@ -5,10 +5,11 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/common/ERC2981.sol";
 import "./CantBeEvil.sol";
 
 
-contract Token721 is ERC721URIStorage, ReentrancyGuard, CantBeEvil {
+contract Token721 is ERC721URIStorage, ReentrancyGuard, CantBeEvil, ERC2981 {
     event TokenMinted(
         uint256 _tokenId,
         string _tokenURI
@@ -26,20 +27,22 @@ contract Token721 is ERC721URIStorage, ReentrancyGuard, CantBeEvil {
         string memory _name,
         string memory _symbol,
         string memory _metadataURI,
-        License.LicenseVersion _license
-    ) ERC721(_name, _symbol) CantBeEvil(_license){
+        License.LicenseVersion _license,
+        address _royaltyRecipient
+    ) ERC721(_name, _symbol) CantBeEvil(_license) {
         creatorAddress = tx.origin;
         metadataURI = _metadataURI;
+        _setDefaultRoyalty(_royaltyRecipient, 500);
     }
 
     function supportsInterface(bytes4 interfaceId)
         public
         view
         virtual
-        override(CantBeEvil, ERC721)
+        override(CantBeEvil, ERC721, ERC2981)
         returns (bool)
     {
-        return super.supportsInterface(interfaceId);
+        return CantBeEvil.supportsInterface(interfaceId) || ERC721.supportsInterface(interfaceId) || ERC2981.supportsInterface(interfaceId);
     }
 
     function getCreatorAddress() public view returns (address) {
@@ -67,6 +70,10 @@ contract Token721 is ERC721URIStorage, ReentrancyGuard, CantBeEvil {
     {
         metadataURI = _metadataURI;
         emit MetadataUriChanged(_metadataURI);
+    }
+
+    function setDefaultRoyalty(address receiver, uint96 feeNumerator) external isCreator {
+        _setDefaultRoyalty(receiver, feeNumerator);
     }
 
     modifier isCreator() {

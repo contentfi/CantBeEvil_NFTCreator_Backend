@@ -1,31 +1,56 @@
 syntax = "proto3";
 
-package helloworld;
+package service.wireman;
 
 import "google/api/annotations.proto";
 
-option go_package = "github.com/go-kratos/examples/helloworld/helloworld";
+option go_package = "github.com/contentfi/CantBeEvil_NFTCreator_Backend/server/api";
 
 // The greeting service definition.
 service Greeter {
   // Sends a greeting
-  rpc SayHello (Collection) returns (HelloReply)  {
+  rpc CreateCollection (Collection) returns (CreateCollectionReply)  {
         option (google.api.http) = {
-            get: "/helloworld/{name}",
-            additional_bindings {
-                post: "/say_hello",
-                body: "*",
-            }
+            post: "/collection",
+        };
+  }
+
+  rpc ListCollection(ListCollectionRequest) returns (ListCollectionReply)  {
+        option (google.api.http) = {
+            get: "/collection",
+        };
+  }
+
+  rpc GetCollection(GetCollectionRequest)returns (Collection)  {
+        option (google.api.http) = {
+            get: "/collection/{id}",
         };
   }
 }
 
+message GetCollectionRequest{
+  int32 id = 1;
+}
+
+message ListCollectionRequest {
+  int32 anchor_id = 1;
+  int32 size = 2;
+}
+
+message ListCollectionReply{
+  repeated Collection collections = 1;
+  int32 anchor_id = 2;
+}
+
+
 // The request message containing the user's name.
 message Collection {
-  string name = 1;
-  string logo = 2;
-  string desc = 3;
-  string license = 4;
+  int32 id = 1;
+  string name = 2;
+  string logo = 3;
+  string desc = 4;
+  string license = 5;
+  string address = 6;
 }
 
 // The response message containing the greetings
