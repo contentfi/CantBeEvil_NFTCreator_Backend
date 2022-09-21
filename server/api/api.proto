@@ -51,6 +51,7 @@ message Collection {
   string desc = 4;
   string license = 5;
   string address = 6;
+  string symbol = 7;
 }
 
 // The response message containing the greetings
