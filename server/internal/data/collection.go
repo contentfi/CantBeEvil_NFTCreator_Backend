@@ -59,6 +59,32 @@ func (r *greeterRepo) Get(ctx context.Context, id int64) (*biz.Collection, error
 	return &collection, nil
 }
 
+func (r *greeterRepo) All(ctx context.Context) ([]*biz.Collection, error) {
+	var res []*biz.Collection
+	err := r.data.db.View(func(txn *badger.Txn) error {
+		opts := badger.DefaultIteratorOptions
+		it := txn.NewIterator(opts)
+		defer it.Close()
+		for it.Rewind(); it.Valid(); it.Next() {
+			item := it.Item()
+			err := item.Value(func(v []byte) error {
+				var collection biz.Collection
+				err := msgpack.Unmarshal(v, &collection)
+				if err != nil {
+					return err
+				}
+				res = append(res, &collection)
+				return nil
+			})
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	return res, err
+}
+
 func (r *greeterRepo) Find(ctx context.Context, anchorID int64, size int, reverse bool) ([]*biz.Collection, error) {
 	var res []*biz.Collection
 	err := r.data.db.View(func(txn *badger.Txn) error {
@@ -68,7 +94,6 @@ func (r *greeterRepo) Find(ctx context.Context, anchorID int64, size int, revers
 			Reverse:        reverse,
 			AllVersions:    false,
 		}
-
 		it := txn.NewIterator(opts)
 		defer it.Close()
 		if anchorID > 0 {

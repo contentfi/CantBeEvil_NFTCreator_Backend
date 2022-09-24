@@ -27,6 +27,16 @@ service Greeter {
           get: "/collection/{id}",
       };
   }
+
+  rpc UserCollection(UserCollectionRequest)returns (UserCollectionReply)  {
+      option (google.api.http) = {
+          get: "/user/{owner_address}/collection",
+      };
+  }
+}
+
+message UserCollectionRequest {
+  string owner_address = 1;
 }
 
 message GetCollectionRequest{
@@ -39,7 +49,11 @@ message ListCollectionRequest {
   bool reverse = 3;
 }
 
-message ListCollectionReply{
+message UserCollectionReply {
+  repeated Collection collections = 1;
+}
+
+message ListCollectionReply {
   repeated Collection collections = 1;
   int64 anchor_id = 2;
   bool  is_end = 3;
@@ -54,9 +68,10 @@ message Collection {
   string desc = 4;
   string license = 5;
   string address = 6;
-  int64 chain_id = 7;
-  string symbol = 8;
-  int64 Mtime = 9;
+  string creator_address = 7;
+  int64 chain_id = 8;
+  string symbol = 9;
+  int64 mtime = 10;
 }
 
 // The response message containing the greetings

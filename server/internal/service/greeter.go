@@ -23,14 +23,15 @@ func NewGreeterService(uc *biz.GreeterUsecase) *GreeterService {
 // SayHello implements helloworld.GreeterServer.
 func (s *GreeterService) CreateCollection(ctx context.Context, in *v1.Collection) (*v1.CreateCollectionReply, error) {
 	c, err := s.uc.Create(ctx, &biz.Collection{
-		Name:    in.Name,
-		Logo:    in.Logo,
-		Desc:    in.Desc,
-		License: in.License,
-		Address: in.Address,
-		Symbol:  in.Symbol,
-		ChainID: in.ChainId,
-		Mtime:   time.Now(),
+		Name:         in.Name,
+		Logo:         in.Logo,
+		Desc:         in.Desc,
+		License:      in.License,
+		Address:      in.Address,
+		Symbol:       in.Symbol,
+		ChainID:      in.ChainId,
+		Mtime:        time.Now(),
+		OwnerAddress: in.CreatorAddress,
 	})
 	if err != nil {
 		return nil, err
@@ -50,15 +51,16 @@ func (s *GreeterService) ListCollection(ctx context.Context, in *v1.ListCollecti
 	reply := v1.ListCollectionReply{}
 	for _, c := range collections {
 		reply.Collections = append(reply.Collections, &v1.Collection{
-			Id:      c.ID,
-			Name:    c.Name,
-			Logo:    c.Logo,
-			Desc:    c.Desc,
-			License: c.License,
-			Address: c.Address,
-			Symbol:  c.Symbol,
-			ChainId: c.ChainID,
-			Mtime:   c.Mtime.Unix(),
+			Id:             c.ID,
+			Name:           c.Name,
+			Logo:           c.Logo,
+			Desc:           c.Desc,
+			License:        c.License,
+			Address:        c.Address,
+			Symbol:         c.Symbol,
+			ChainId:        c.ChainID,
+			Mtime:          c.Mtime.Unix(),
+			CreatorAddress: c.OwnerAddress,
 		})
 	}
 	if len(reply.Collections) > 0 {
@@ -71,20 +73,45 @@ func (s *GreeterService) ListCollection(ctx context.Context, in *v1.ListCollecti
 }
 
 // SayHello implements helloworld.GreeterServer.
+func (s *GreeterService) UserCollection(ctx context.Context, in *v1.UserCollectionRequest) (*v1.UserCollectionReply, error) {
+	collections, err := s.uc.UserCollections(ctx, in.OwnerAddress)
+	if err != nil {
+		return nil, err
+	}
+	reply := v1.UserCollectionReply{}
+	for _, c := range collections {
+		reply.Collections = append(reply.Collections, &v1.Collection{
+			Id:             c.ID,
+			Name:           c.Name,
+			Logo:           c.Logo,
+			Desc:           c.Desc,
+			License:        c.License,
+			Address:        c.Address,
+			Symbol:         c.Symbol,
+			ChainId:        c.ChainID,
+			Mtime:          c.Mtime.Unix(),
+			CreatorAddress: c.OwnerAddress,
+		})
+	}
+	return &reply, nil
+}
+
+// SayHello implements helloworld.GreeterServer.
 func (s *GreeterService) GetCollection(ctx context.Context, in *v1.GetCollectionRequest) (*v1.Collection, error) {
 	c, err := s.uc.Get(ctx, in.Id)
 	if err != nil {
 		return nil, err
 	}
 	return &v1.Collection{
-		Id:      c.ID,
-		Name:    c.Name,
-		Logo:    c.Logo,
-		Desc:    c.Desc,
-		License: c.License,
-		Address: c.Address,
-		Symbol:  c.Symbol,
-		ChainId: c.ChainID,
-		Mtime:   c.Mtime.Unix(),
+		Id:             c.ID,
+		Name:           c.Name,
+		Logo:           c.Logo,
+		Desc:           c.Desc,
+		License:        c.License,
+		Address:        c.Address,
+		Symbol:         c.Symbol,
+		ChainId:        c.ChainID,
+		Mtime:          c.Mtime.Unix(),
+		CreatorAddress: c.OwnerAddress,
 	}, nil
 }

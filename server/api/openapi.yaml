@@ -71,6 +71,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/service.wireman.Collection'
+    /user/{ownerAddress}/collection:
+        get:
+            tags:
+                - Greeter
+            operationId: Greeter_UserCollection
+            parameters:
+                - name: ownerAddress
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/service.wireman.UserCollectionReply'
 components:
     schemas:
         service.wireman.Collection:
@@ -89,12 +107,14 @@ components:
                     type: string
                 address:
                     type: string
+                creatorAddress:
+                    type: string
                 chainId:
                     type: integer
                     format: int64
                 symbol:
                     type: string
-                Mtime:
+                mtime:
                     type: integer
                     format: int64
             description: The request message containing the user's name.
@@ -119,5 +139,12 @@ components:
                     format: int64
                 isEnd:
                     type: boolean
+        service.wireman.UserCollectionReply:
+            type: object
+            properties:
+                collections:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/service.wireman.Collection'
 tags:
     - name: Greeter

@@ -22,11 +22,13 @@ const _ = http.SupportPackageIsVersion1
 const OperationGreeterCreateCollection = "/service.wireman.Greeter/CreateCollection"
 const OperationGreeterGetCollection = "/service.wireman.Greeter/GetCollection"
 const OperationGreeterListCollection = "/service.wireman.Greeter/ListCollection"
+const OperationGreeterUserCollection = "/service.wireman.Greeter/UserCollection"
 
 type GreeterHTTPServer interface {
 	CreateCollection(context.Context, *Collection) (*CreateCollectionReply, error)
 	GetCollection(context.Context, *GetCollectionRequest) (*Collection, error)
 	ListCollection(context.Context, *ListCollectionRequest) (*ListCollectionReply, error)
+	UserCollection(context.Context, *UserCollectionRequest) (*UserCollectionReply, error)
 }
 
 func RegisterGreeterHTTPServer(s *http.Server, srv GreeterHTTPServer) {
@@ -34,6 +36,7 @@ func RegisterGreeterHTTPServer(s *http.Server, srv GreeterHTTPServer) {
 	r.POST("/collection", _Greeter_CreateCollection0_HTTP_Handler(srv))
 	r.GET("/collection", _Greeter_ListCollection0_HTTP_Handler(srv))
 	r.GET("/collection/{id}", _Greeter_GetCollection0_HTTP_Handler(srv))
+	r.GET("/user/{owner_address}/collection", _Greeter_UserCollection0_HTTP_Handler(srv))
 }
 
 func _Greeter_CreateCollection0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
@@ -96,10 +99,33 @@ func _Greeter_GetCollection0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.C
 	}
 }
 
+func _Greeter_UserCollection0_HTTP_Handler(srv GreeterHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in UserCollectionRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindVars(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationGreeterUserCollection)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.UserCollection(ctx, req.(*UserCollectionRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*UserCollectionReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type GreeterHTTPClient interface {
 	CreateCollection(ctx context.Context, req *Collection, opts ...http.CallOption) (rsp *CreateCollectionReply, err error)
 	GetCollection(ctx context.Context, req *GetCollectionRequest, opts ...http.CallOption) (rsp *Collection, err error)
 	ListCollection(ctx context.Context, req *ListCollectionRequest, opts ...http.CallOption) (rsp *ListCollectionReply, err error)
+	UserCollection(ctx context.Context, req *UserCollectionRequest, opts ...http.CallOption) (rsp *UserCollectionReply, err error)
 }
 
 type GreeterHTTPClientImpl struct {
@@ -141,6 +167,19 @@ func (c *GreeterHTTPClientImpl) ListCollection(ctx context.Context, in *ListColl
 	pattern := "/collection"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationGreeterListCollection))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *GreeterHTTPClientImpl) UserCollection(ctx context.Context, in *UserCollectionRequest, opts ...http.CallOption) (*UserCollectionReply, error) {
+	var out UserCollectionReply
+	pattern := "/user/{owner_address}/collection"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationGreeterUserCollection))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
