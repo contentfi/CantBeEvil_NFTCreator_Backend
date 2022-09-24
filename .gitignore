@@ -3,3 +3,5 @@ artifacts
 cache
 .DS_Store
 typechain
+server/cmd/server/server
+server/cmd/server/badger

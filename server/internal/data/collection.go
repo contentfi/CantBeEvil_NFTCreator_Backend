@@ -27,16 +27,15 @@ func NewGreeterRepo(data *Data, logger log.Logger) biz.GreeterRepo {
 
 func (r *greeterRepo) Save(ctx context.Context, g *biz.Collection) (*biz.Collection, error) {
 	g.ID = time.Now().UnixNano()
-	b, err := msgpack.Marshal(&g)
+	b, err := msgpack.Marshal(g)
 	if err != nil {
 		return nil, err
 	}
 	err = r.data.db.Update(func(txn *badger.Txn) error {
 		id := make([]byte, 8)
-		binary.BigEndian.PutUint64(b, uint64(g.ID))
+		binary.BigEndian.PutUint64(id, uint64(g.ID))
 		e := badger.NewEntry(id, b)
-		err := txn.SetEntry(e)
-		return err
+		return txn.SetEntry(e)
 	})
 	return g, err
 }
@@ -45,7 +44,7 @@ func (r *greeterRepo) Get(ctx context.Context, id int64) (*biz.Collection, error
 	idB := make([]byte, 8)
 	binary.BigEndian.PutUint64(idB, uint64(id))
 	var collection biz.Collection
-	r.data.db.View(func(txn *badger.Txn) error {
+	err := r.data.db.View(func(txn *badger.Txn) error {
 		item, err := txn.Get(idB)
 		if err != nil {
 			return err
@@ -54,6 +53,9 @@ func (r *greeterRepo) Get(ctx context.Context, id int64) (*biz.Collection, error
 			return msgpack.Unmarshal(v, &collection)
 		})
 	})
+	if err != nil {
+		return nil, err
+	}
 	return &collection, nil
 }
 
@@ -75,10 +77,13 @@ func (r *greeterRepo) Find(ctx context.Context, anchorID int64, size int, revers
 				k := item.Key()
 				if anchorID > 0 {
 					if int64(binary.BigEndian.Uint64(k)) == anchorID {
+						it.Next()
 						break
 					}
 				}
 			}
+		} else {
+			it.Rewind()
 		}
 		for ; it.Valid(); it.Next() {
 			item := it.Item()
