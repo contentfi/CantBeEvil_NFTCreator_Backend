@@ -10,51 +10,57 @@ option go_package = "github.com/contentfi/CantBeEvil_NFTCreator_Backend/server/a
 service Greeter {
   // Sends a greeting
   rpc CreateCollection (Collection) returns (CreateCollectionReply)  {
-        option (google.api.http) = {
-            post: "/collection",
-        };
+      option (google.api.http) = {
+          post: "/collection",
+          body:"*"
+      };
   }
 
   rpc ListCollection(ListCollectionRequest) returns (ListCollectionReply)  {
-        option (google.api.http) = {
-            get: "/collection",
-        };
+      option (google.api.http) = {
+          get: "/collection",
+      };
   }
 
   rpc GetCollection(GetCollectionRequest)returns (Collection)  {
-        option (google.api.http) = {
-            get: "/collection/{id}",
-        };
+      option (google.api.http) = {
+          get: "/collection/{id}",
+      };
   }
 }
 
 message GetCollectionRequest{
-  int32 id = 1;
+  int64 id = 1;
 }
 
 message ListCollectionRequest {
-  int32 anchor_id = 1;
+  int64 anchor_id = 1;
   int32 size = 2;
+  bool reverse = 3;
 }
 
 message ListCollectionReply{
   repeated Collection collections = 1;
-  int32 anchor_id = 2;
+  int64 anchor_id = 2;
+  bool  is_end = 3;
 }
 
 
 // The request message containing the user's name.
 message Collection {
-  int32 id = 1;
+  int64 id = 1;
   string name = 2;
   string logo = 3;
   string desc = 4;
   string license = 5;
   string address = 6;
-  string symbol = 7;
+  int64 chain_id = 7;
+  string symbol = 8;
+  int64 Mtime = 9;
 }
 
 // The response message containing the greetings
 message CreateCollectionReply {
   bool success = 1;
+  int64 id = 2;
 }
