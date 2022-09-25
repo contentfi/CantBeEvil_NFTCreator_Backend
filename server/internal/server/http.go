@@ -1,6 +1,7 @@
 package server
 
 import (
+	httpx "net/http"
 	v1 "server/api"
 	"server/internal/conf"
 	"server/internal/service"
@@ -8,19 +9,33 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/transport/http"
-	"github.com/gorilla/handlers"
+	"github.com/rs/cors"
 )
+
+func WithCORS() func(handler httpx.Handler) httpx.Handler {
+	return func(handler httpx.Handler) httpx.Handler {
+		return cors.New(cors.Options{
+			AllowedOrigins: []string{"*"},
+			AllowedMethods: []string{
+				httpx.MethodHead,
+				httpx.MethodGet,
+				httpx.MethodPost,
+				httpx.MethodPut,
+				httpx.MethodPatch,
+				httpx.MethodDelete,
+			},
+			AllowedHeaders: []string{"*"},
+		}).Handler(handler)
+	}
+}
 
 // NewHTTPServer new a HTTP server.
 func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
+		http.Filter(WithCORS()),
 		http.Middleware(
 			recovery.Recovery(),
 		),
-		http.Filter(handlers.CORS(
-			handlers.AllowedOrigins([]string{"*"}),
-			handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"}),
-		)),
 	}
 	if c.Http.Network != "" {
 		opts = append(opts, http.Network(c.Http.Network))
