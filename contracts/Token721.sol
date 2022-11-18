@@ -5,8 +5,7 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "./cantbeevil.sol";
-
+import "./CantBeEvil.sol";
 
 contract Token721 is ERC721URIStorage, ReentrancyGuard, CantBeEvil {
     event TokenMinted(
@@ -26,7 +25,7 @@ contract Token721 is ERC721URIStorage, ReentrancyGuard, CantBeEvil {
         string memory _name,
         string memory _symbol,
         string memory _metadataURI,
-        License.LicenseVersion _license
+        LicenseVersion _license
     ) ERC721(_name, _symbol) CantBeEvil(_license) {
         creatorAddress = tx.origin;
         metadataURI = _metadataURI;
