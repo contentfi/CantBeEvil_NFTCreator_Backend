@@ -33,6 +33,7 @@ type GreeterRepo interface {
 	Get(context.Context, int64) (*Collection, error)
 	Find(context.Context, int64, int, bool) ([]*Collection, error)
 	All(context.Context) ([]*Collection, error)
+	Delete(ctx context.Context, id int64) error
 }
 
 // GreeterUsecase is a Greeter usecase.
@@ -123,6 +124,11 @@ func (uc *GreeterUsecase) Create(ctx context.Context, g *Collection) (*Collectio
 // CreateGreeter creates a Greeter, and returns the new Greeter.
 func (uc *GreeterUsecase) Get(ctx context.Context, id int64) (*Collection, error) {
 	return uc.repo.Get(ctx, id)
+}
+
+// CreateGreeter creates a Greeter, and returns the new Greeter.
+func (uc *GreeterUsecase) Delete(ctx context.Context, id int64) error {
+	return uc.repo.Delete(ctx, id)
 }
 
 // CreateGreeter creates a Greeter, and returns the new Greeter.

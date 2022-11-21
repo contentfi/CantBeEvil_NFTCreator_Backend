@@ -33,6 +33,20 @@ service Greeter {
           get: "/user/{owner_address}/collection",
       };
   }
+
+
+   rpc DeleteCollection(DeleteCollectionRequest)returns (DeleteCollectionReply)  {
+      option (google.api.http) = {
+          delete: "/collection/{id}",
+      };
+  }
+}
+
+message DeleteCollectionRequest {
+    int64 id = 1;
+}
+
+message DeleteCollectionReply {
 }
 
 message UserCollectionRequest {

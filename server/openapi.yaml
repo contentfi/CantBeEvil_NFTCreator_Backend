@@ -1,0 +1,171 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: Greeter API
+    description: The greeting service definition.
+    version: 0.0.1
+paths:
+    /collection:
+        get:
+            tags:
+                - Greeter
+            operationId: Greeter_ListCollection
+            parameters:
+                - name: anchorId
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+                - name: size
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: reverse
+                  in: query
+                  schema:
+                    type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/service.wireman.ListCollectionReply'
+        post:
+            tags:
+                - Greeter
+            description: Sends a greeting
+            operationId: Greeter_CreateCollection
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/service.wireman.Collection'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/service.wireman.CreateCollectionReply'
+    /collection/{id}:
+        get:
+            tags:
+                - Greeter
+            operationId: Greeter_GetCollection
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: int64
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/service.wireman.Collection'
+        delete:
+            tags:
+                - Greeter
+            operationId: Greeter_DeleteCollection
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: int64
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/service.wireman.DeleteCollectionReply'
+    /user/{ownerAddress}/collection:
+        get:
+            tags:
+                - Greeter
+            operationId: Greeter_UserCollection
+            parameters:
+                - name: ownerAddress
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/service.wireman.UserCollectionReply'
+components:
+    schemas:
+        service.wireman.Collection:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                name:
+                    type: string
+                logo:
+                    type: string
+                desc:
+                    type: string
+                license:
+                    type: string
+                address:
+                    type: string
+                creatorAddress:
+                    type: string
+                chainId:
+                    type: integer
+                    format: int64
+                symbol:
+                    type: string
+                mtime:
+                    type: integer
+                    format: int64
+            description: The request message containing the user's name.
+        service.wireman.CreateCollectionReply:
+            type: object
+            properties:
+                success:
+                    type: boolean
+                id:
+                    type: integer
+                    format: int64
+            description: The response message containing the greetings
+        service.wireman.DeleteCollectionReply:
+            type: object
+            properties: {}
+        service.wireman.ListCollectionReply:
+            type: object
+            properties:
+                collections:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/service.wireman.Collection'
+                anchorId:
+                    type: integer
+                    format: int64
+                isEnd:
+                    type: boolean
+        service.wireman.UserCollectionReply:
+            type: object
+            properties:
+                collections:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/service.wireman.Collection'
+tags:
+    - name: Greeter

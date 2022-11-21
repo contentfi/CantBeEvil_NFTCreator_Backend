@@ -2,10 +2,13 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	v1 "server/api"
 	"server/internal/biz"
+
+	"github.com/go-kratos/kratos/v2/transport"
 )
 
 // GreeterService is a greeter service.
@@ -114,4 +117,16 @@ func (s *GreeterService) GetCollection(ctx context.Context, in *v1.GetCollection
 		Mtime:          c.Mtime.Unix(),
 		CreatorAddress: c.OwnerAddress,
 	}, nil
+}
+
+func (s *GreeterService) DeleteCollection(ctx context.Context, in *v1.DeleteCollectionRequest) (*v1.DeleteCollectionReply, error) {
+	tr, ok := transport.FromServerContext(ctx)
+	if !ok || tr == nil || tr.RequestHeader().Get("x-token") != "testmakefan23456" {
+		return nil, fmt.Errorf("invalid arg!")
+	}
+	err := s.uc.Delete(ctx, in.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.DeleteCollectionReply{}, nil
 }

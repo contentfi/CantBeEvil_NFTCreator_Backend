@@ -40,6 +40,15 @@ func (r *greeterRepo) Save(ctx context.Context, g *biz.Collection) (*biz.Collect
 	return g, err
 }
 
+func (r *greeterRepo) Delete(ctx context.Context, id int64) error {
+	idB := make([]byte, 8)
+	binary.BigEndian.PutUint64(idB, uint64(id))
+	err := r.data.db.Update(func(txn *badger.Txn) error {
+		return txn.Delete(idB)
+	})
+	return err
+}
+
 func (r *greeterRepo) Get(ctx context.Context, id int64) (*biz.Collection, error) {
 	idB := make([]byte, 8)
 	binary.BigEndian.PutUint64(idB, uint64(id))
